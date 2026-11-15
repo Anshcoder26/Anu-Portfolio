@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+/* Palette sampled from the portfolio PDF (also used in components/three/materials.ts). */
+@theme inline {
+  --color-sindoor: #a6232a;
+  --color-sindoor-deep: #7d1a1f;
+  --color-haldi: #e3b23c;
+  --color-cream: #f6ebd3;
+  --color-kraft: #d9bf91;
+  --color-ink: #1b1410;
+  --color-bamboo: #7a8b3a;
+  --color-teal: #1f5c5a;
+
+  --font-display: var(--font-yatra);
+  --font-hand: var(--font-kalam);
+  --font-sans: var(--font-inter);
+}
+
+html,
+body {
+  height: 100%;
+  background: var(--color-ink);
+  color: var(--color-cream);
+  overscroll-behavior: none;
+}
+
+/* Woven folk border used along the top of the viewer (echoes the PDF's page borders). */
+.folk-border {
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      var(--color-sindoor) 0 14px,
+      var(--color-haldi) 14px 18px,
+      var(--color-sindoor) 18px 32px,
+      var(--color-cream) 32px 36px
+    );
+}
+
+/* Subtle paper grain without an image request. */
+.paper-grain {
+  background-image: radial-gradient(rgb(255 255 255 / 0.035) 1px, transparent 1px);
+  background-size: 3px 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
