@@ -5,6 +5,7 @@
 //
 // Output:
 //   public/slides/01.jpg … NN.jpg   (1920px wide)
+//   public/slides/thumbs/NN.jpg     (480px wide, used on the wall mood board)
 //   public/textures/book-cover.jpg  (page 1, 1024px wide, used on the 3D book)
 import AppKit
 import PDFKit
@@ -20,7 +21,7 @@ guard let doc = PDFDocument(url: URL(fileURLWithPath: CommandLine.arguments[1]))
 }
 
 let fm = FileManager.default
-try? fm.createDirectory(atPath: "public/slides", withIntermediateDirectories: true)
+try? fm.createDirectory(atPath: "public/slides/thumbs", withIntermediateDirectories: true)
 try? fm.createDirectory(atPath: "public/textures", withIntermediateDirectories: true)
 
 func render(_ page: PDFPage, width: CGFloat, quality: Double, to path: String) {
@@ -55,7 +56,8 @@ for i in 0..<doc.pageCount {
   guard let page = doc.page(at: i) else { fail("missing page \(i + 1)") }
   let path = String(format: "public/slides/%02d.jpg", i + 1)
   render(page, width: 1920, quality: 0.82, to: path)
-  print("✓ \(path)")
+  render(page, width: 480, quality: 0.8, to: String(format: "public/slides/thumbs/%02d.jpg", i + 1))
+  print("✓ \(path) (+ thumb)")
 }
 
 if let cover = doc.page(at: 0) {

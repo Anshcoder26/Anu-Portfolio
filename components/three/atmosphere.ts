@@ -95,22 +95,28 @@ export function timeOfDayFor(hour: number): TimeOfDay {
 const isTimeOfDay = (v: string | null): v is TimeOfDay =>
   v === "morning" || v === "day" || v === "evening" || v === "night";
 
+const ORDER: TimeOfDay[] = ["morning", "day", "evening", "night"];
+
 /**
  * The visitor's local time of day, re-checked every minute.
  * `?time=morning|day|evening|night` in the URL forces one (handy for previewing).
+ * Returns `[timeOfDay, cycle]` — `cycle()` steps to the next look (the window click).
  */
-export function useTimeOfDay(): TimeOfDay {
-  const [tod, setTod] = useState<TimeOfDay>(() => {
+export function useTimeOfDay(): [TimeOfDay, () => void] {
+  const [clock, setClock] = useState<TimeOfDay>(() => {
     const forced = new URLSearchParams(window.location.search).get("time");
     return isTimeOfDay(forced) ? forced : timeOfDayFor(new Date().getHours());
   });
+  const [override, setOverride] = useState<TimeOfDay | null>(null);
 
   useEffect(() => {
     const forced = new URLSearchParams(window.location.search).get("time");
     if (isTimeOfDay(forced)) return;
-    const id = window.setInterval(() => setTod(timeOfDayFor(new Date().getHours())), 60_000);
+    const id = window.setInterval(() => setClock(timeOfDayFor(new Date().getHours())), 60_000);
     return () => window.clearInterval(id);
   }, []);
 
-  return tod;
+  const current = override ?? clock;
+  const cycle = () => setOverride(ORDER[(ORDER.indexOf(current) + 1) % ORDER.length]);
+  return [current, cycle];
 }

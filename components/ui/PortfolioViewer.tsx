@@ -6,6 +6,8 @@ import { preload } from "react-dom";
 import { AnimatePresence, motion, type PanInfo, type Variants } from "framer-motion";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { SLIDE_HEIGHT, SLIDE_WIDTH, sections, slides, type Hotspot } from "@/data/slides";
+import { play } from "@/lib/sound";
+import { SoundToggle } from "./SoundToggle";
 import { StitchButton } from "./StitchButton";
 
 const SIZES = "(max-width: 768px) 100vw, min(92vw, 1600px)";
@@ -77,11 +79,13 @@ function riffleSteps(from: number, to: number) {
 
 type Props = {
   open: boolean;
+  /** Page to riffle to once the viewer has opened (desk-object links). */
+  startIndex?: number;
   reducedMotion: boolean;
   onClose: () => void;
 };
 
-export function PortfolioViewer({ open, reducedMotion, onClose }: Props) {
+export function PortfolioViewer({ open, startIndex = 0, reducedMotion, onClose }: Props) {
   const [view, setView] = useState({ index: 0, dir: 1, fast: false });
   const [notice, setNotice] = useState<string | null>(null);
   const timers = useRef<number[]>([]);
@@ -100,6 +104,7 @@ export function PortfolioViewer({ open, reducedMotion, onClose }: Props) {
     (target: number, fast = false) => {
       const to = Math.max(0, Math.min(last, target));
       setView((v) => (to === v.index ? v : { index: to, dir: to > v.index ? 1 : -1, fast }));
+      play("paper");
     },
     [last],
   );
@@ -119,6 +124,17 @@ export function PortfolioViewer({ open, reducedMotion, onClose }: Props) {
     },
     [goTo, index, last, reducedMotion],
   );
+
+  // Opened from a desk object: riffle to its page once the viewer is in.
+  const flipToRef = useRef(flipTo);
+  useEffect(() => {
+    flipToRef.current = flipTo;
+  }, [flipTo]);
+  useEffect(() => {
+    if (!open || startIndex <= 0) return;
+    const t = window.setTimeout(() => flipToRef.current(startIndex), 650);
+    return () => window.clearTimeout(t);
+  }, [open, startIndex]);
 
   const next = useCallback(() => {
     clearTimers();
@@ -212,10 +228,13 @@ export function PortfolioViewer({ open, reducedMotion, onClose }: Props) {
               </select>
             </label>
 
+            <div className="flex items-center gap-2">
+            <SoundToggle className="size-10" />
             <StitchButton ref={closeRef} onClick={onClose} aria-label="Close portfolio and return to the desk" className="px-3 py-2">
               <X className="size-5" aria-hidden />
               <span className="hidden sm:inline">Close</span>
             </StitchButton>
+            </div>
           </header>
 
           {/* Stage */}

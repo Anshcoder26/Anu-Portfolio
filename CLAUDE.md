@@ -49,6 +49,24 @@ All transitions use functional `setPhase(p => p === X ? Y : p)`, so stray or dup
 
 **Contents page:** `hotspots` on slide 5 (`data/slides.ts`) place percentage-positioned buttons over the labels in the artwork. `flipTo()` in the viewer riffles through up to `RIFFLE_PAGES` in-between pages with fast turns, using timeouts that are cleared on any manual navigation, then does one normal turn onto the target. Hotspots without a `section` show a "coming soon" note.
 
+**Interactive objects (`components/three/desk/`):**
+- Every clickable desk or wall object is wrapped in `<Interactive name label hint section|page sound onActivate>`. It provides the hover lift, pointer cursor, sound cue and the kraft label with an "Open … ⟶" link.
+- Only one label shows at a time, via `active` in `DeskContext`. `Scene.tsx` provides that context, and interactions are enabled only in `intro`.
+- Labels are drei `<Html>`. On narrow screens they are portalled to `document.body` as a centred card, because labels of edge objects clipped.
+- The link calls `onOpenPage(i)` in `app/page.tsx`. That bumps `opening.count`, which remounts `PortfolioViewer` via its `key`, and sets `startIndex`. The viewer then `flipTo`s that page after it opens.
+
+**Animations:**
+- Click animations use `useTrigger()` (`fire()` in the handler, `since(state)` in `useFrame`) plus the `smooth` and `wobble` helpers. Don't put per-frame state in React.
+- Canvas artwork lives in `components/three/textures.ts`. `sharedTexture` is cached and static, while `animatedCanvas` is per-instance and redrawn with `draw(progress)`. Mutating a `useMemo` value inside `useFrame` trips the `react-hooks/immutability` lint, which is why `animatedCanvas` exposes methods instead.
+
+**Raycasting gotchas:**
+- R3F only raycasts objects that have handlers, so non-interactive meshes such as walls don't block clicks.
+- Thin objects (scissors, tape) need an invisible `opacity={0}` hit box. The window uses an opening-sized pane.
+
+**Wall layout:**
+- Wall items sit right of the window. On narrow screens, some items take a `compactPosition` through `useResponsivePosition`. Phones see much more wall height, so compact spots sit higher.
+- Thumbnails for the mood-board polaroids come from `public/slides/thumbs/`, which `npm run export-slides` generates.
+
 **Content:** `data/slides.ts` is the single source of truth for pages. Each entry has `src`, a `section` that feeds the section `<select>` (`sections` is derived from it) and `title`/`alt` text written from the PDF's own text. Adding a page means exporting the image and adding an entry here.
 
 **Theme:** palette tokens (`sindoor`, `haldi`, `cream`, `kraft`, `ink`, `bamboo`, `teal`) and fonts (`font-display` = Yatra One, `font-hand` = Kalam, `font-sans` = Inter) are defined in `app/globals.css` with `@theme inline`. They mirror `COLORS` in `materials.ts`, so keep the two in sync. The look follows the PDF's Indian folk-art style.

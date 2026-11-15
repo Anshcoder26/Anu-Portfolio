@@ -32,6 +32,9 @@ const SHOTS: Record<"wide" | "hero" | "closeup", Shot> = {
 const shotFor = (phase: Phase) =>
   phase === "loading" ? SHOTS.wide : phase === "opening" || phase === "viewer" ? SHOTS.closeup : SHOTS.hero;
 
+/** How far (world units) the hero look-at point rises on portrait screens. */
+const PORTRAIT_TILT = 1.2;
+
 const tmpPos = new THREE.Vector3();
 const tmpTarget = new THREE.Vector3();
 const tmpOffset = new THREE.Vector3();
@@ -56,6 +59,10 @@ export function CameraRig({ phase, reducedMotion }: { phase: Phase; reducedMotio
     const needed = shot.halfWidth / Math.tan(halfFovX);
     const scale = Math.max(1, needed / offset.length());
     tmpPos.copy(tmpTarget).addScaledVector(offset, scale);
+
+    // Portrait screens (phones, tablets upright): tilt the desk view up a little
+    // so the wall decor clears the title and less empty floor shows at the bottom.
+    if (shot === SHOTS.hero && camera.aspect < 0.85) tmpTarget.y += PORTRAIT_TILT;
 
     if (phase === "intro" && !reducedMotion) {
       tmpPos.x += state.pointer.x * 0.35;

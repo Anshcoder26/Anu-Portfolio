@@ -3,6 +3,7 @@
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import type { Atmosphere } from "./atmosphere";
+import { Interactive } from "./desk/Interactive";
 import { getMaterials } from "./materials";
 
 /** Back wall plane (front face) — the desk's back edge sits against it. */
@@ -99,7 +100,7 @@ function WallBox({ x0, x1, y0, y1, color }: { x0: number; x1: number; y0: number
  * time of day), side walls, wooden floor. The back wall casts shadows, so the
  * window light lands on the desk as a window-shaped patch.
  */
-export function Room({ atmosphere: a }: { atmosphere: Atmosphere }) {
+export function Room({ atmosphere: a, onWindowClick }: { atmosphere: Atmosphere; onWindowClick?: () => void }) {
   const m = getMaterials();
   const sky = useMemo(() => drawSky(a), [a]);
   useEffect(() => () => sky.dispose(), [sky]);
@@ -140,7 +141,22 @@ export function Room({ atmosphere: a }: { atmosphere: Atmosphere }) {
         <boxGeometry args={[ROOM.x1 - ROOM.x0, 0.24, 0.06]} />
       </mesh>
 
-      {/* The view outside (unlit, so it reads as bright sky) */}
+      {/* The view outside (unlit, so it reads as bright sky). Click to change the time of day. */}
+      <Interactive
+        name="window"
+        label="Window"
+        hint="Click to change the time of day"
+        sound="chime"
+        lift={0}
+        labelOffset={[wx, wy + 0.4, WALL_Z + 0.3]}
+        onActivate={onWindowClick}
+      >
+        {/* Invisible pane exactly the size of the opening = the click target */}
+        <mesh position={[wx, wy, WALL_Z - 0.05]}>
+          <planeGeometry args={[x1 - x0, y1 - y0]} />
+          <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+        </mesh>
+      </Interactive>
       <mesh position={[wx, wy, WALL_Z - 0.9]}>
         <planeGeometry args={[(x1 - x0) * 1.6, (y1 - y0) * 1.6]} />
         <meshBasicMaterial map={sky} toneMapped={false} />

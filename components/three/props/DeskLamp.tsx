@@ -2,18 +2,24 @@
 
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
+import { Interactive } from "../desk/Interactive";
 import { COLORS, getMaterials } from "../materials";
 
 /**
  * Brass desk lamp; its spotlight pools warm light on the book (evening/night).
  * `intensity` 0 switches it off.
- * `target` is the world point the shade aims at.
+ * `target` is the world point the shade aims at. Click toggles it (`onToggle`).
  */
 export function DeskLamp({
   target = [0, 0, 0],
   intensity = 28,
+  onToggle,
   ...props
-}: React.JSX.IntrinsicElements["group"] & { target?: [number, number, number]; intensity?: number }) {
+}: React.JSX.IntrinsicElements["group"] & {
+  target?: [number, number, number];
+  intensity?: number;
+  onToggle?: () => void;
+}) {
   const on = intensity > 0;
   const m = getMaterials();
   const light = useRef<THREE.SpotLight>(null);
@@ -25,7 +31,16 @@ export function DeskLamp({
 
   return (
     <>
-      <group {...props}>
+      <Interactive
+        name="lamp"
+        label="Desk lamp"
+        hint={on ? "Click to switch off" : "Click to switch on"}
+        sound="click"
+        lift={0}
+        labelOffset={[0.4, 3, 0.2]}
+        onActivate={onToggle}
+        {...props}
+      >
         <mesh position-y={0.05} castShadow material={m.brass}>
           <cylinderGeometry args={[0.45, 0.5, 0.1, 32]} />
         </mesh>
@@ -57,7 +72,7 @@ export function DeskLamp({
           decay={1.6}
           color="#ffd7a0"
         />
-      </group>
+      </Interactive>
       <object3D ref={aim} position={target} />
     </>
   );
