@@ -61,7 +61,7 @@ function Steam() {
  * Instagram opens in a new tab.
  */
 export function OnayakhiMug(props: React.JSX.IntrinsicElements["group"]) {
-  const [art, tag] = useTexture(["/textures/onayakhi-mug-art.jpg", "/textures/onayakhi-tag.jpg"], (ts) =>
+  const [art, tag] = useTexture(["/textures/onayakhi-mug-art.webp", "/textures/onayakhi-tag.webp"], (ts) =>
     ts.forEach((t) => (t.colorSpace = THREE.SRGBColorSpace)),
   );
   const trigger = useTrigger();

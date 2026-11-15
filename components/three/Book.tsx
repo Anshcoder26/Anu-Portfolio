@@ -33,7 +33,7 @@ export function Book({ phase, reducedMotion, onOpen, onOpened, onClosed }: Props
   const fired = useRef<Phase | null>(null);
   const [hovered, setHovered] = useState(false);
 
-  const coverMap = useTexture("/textures/book-cover.jpg", (t) => {
+  const coverMap = useTexture("/textures/book-cover.webp", (t) => {
     t.colorSpace = THREE.SRGBColorSpace;
     t.anisotropy = 8;
   });

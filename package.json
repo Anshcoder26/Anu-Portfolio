@@ -7,8 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "export-slides": "swift scripts/export-slides.swift source/portfolio.pdf",
-    "dev:webpack": "next dev --webpack"
+    "export-slides": "swift scripts/export-slides.swift source/portfolio.pdf && node scripts/optimize-images.mjs",
+    "dev:webpack": "next dev --webpack",
+    "optimize-images": "node scripts/optimize-images.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",

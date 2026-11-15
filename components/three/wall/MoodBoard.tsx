@@ -90,7 +90,7 @@ function IdCard() {
 /** Cork mood board: polaroids of her work, textile swatches, colour chips, ID card. */
 export function MoodBoard(props: React.JSX.IntrinsicElements["group"]) {
   const m = getMaterials();
-  const thumbs = useTexture(POLAROIDS.map((p) => `/slides/thumbs/${p.file}.jpg`));
+  const thumbs = useTexture(POLAROIDS.map((p) => `/slides/thumbs/${p.file}.webp`));
   thumbs.forEach((t) => (t.colorSpace = THREE.SRGBColorSpace));
 
   return (

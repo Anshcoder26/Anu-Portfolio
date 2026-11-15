@@ -17,7 +17,8 @@ npm run dev        # → http://localhost:3000
 | `npm run dev:webpack` | Dev server in Webpack mode (fallback if the native SWC binary is broken) |
 | `npm run build` / `npm start` | Production build / serve |
 | `npm run lint` | ESLint |
-| `npm run export-slides` | Re-export the PDF pages to `public/slides` (macOS only) |
+| `npm run export-slides` | Re-export the PDF pages to `public/slides` and optimise them (macOS only) |
+| `npm run optimize-images` | Convert the images the 3D scene loads directly to small WebP files |
 
 ## Updating the portfolio pages
 
@@ -85,4 +86,5 @@ scripts/export-slides.swift
 
 - **Viewer controls:** ← / → (or swipe) to turn pages, Home / End to jump to the first or last page, and Esc to close.
 - **Reduced motion:** with "reduce motion" turned on in the OS, the camera cuts instead of flying and pages crossfade.
+- **Image weight:** the page images in the viewer go through `next/image`, which resizes them and serves WebP (about 50 KB per page on a phone). The 3D scene's own textures (book cover, polaroid thumbnails, Onayakhi artwork) skip that, so `scripts/optimize-images.mjs` converts them to WebP sized to how big they appear. That cut the first load's images from 531 KB to 153 KB.
 - **Performance:** the 3D scene stops rendering while the viewer is open. All props are simple shapes, so there are no model downloads.

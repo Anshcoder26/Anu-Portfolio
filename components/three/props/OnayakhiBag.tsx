@@ -33,7 +33,7 @@ function useHandleGeometry() {
  * the brand's Instagram opens in a new tab.
  */
 export function OnayakhiBag(props: React.JSX.IntrinsicElements["group"]) {
-  const front = useTexture("/textures/onayakhi-bag.jpg", (t) => {
+  const front = useTexture("/textures/onayakhi-bag.webp", (t) => {
     t.colorSpace = THREE.SRGBColorSpace;
     t.anisotropy = 8;
   });
