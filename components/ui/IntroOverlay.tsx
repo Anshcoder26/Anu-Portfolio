@@ -6,7 +6,15 @@ import type { Phase } from "@/lib/phase";
 import { StitchButton } from "./StitchButton";
 
 /** Title + hint shown over the desk. Fades out once the book starts opening. */
-export function IntroOverlay({ phase, onOpen }: { phase: Phase; onOpen: () => void }) {
+export function IntroOverlay({
+  phase,
+  onOpen,
+  onContact,
+}: {
+  phase: Phase;
+  onOpen: () => void;
+  onContact: () => void;
+}) {
   const visible = phase === "loading" || phase === "intro" || phase === "closing";
 
   return (
@@ -60,6 +68,14 @@ export function IntroOverlay({ phase, onOpen }: { phase: Phase; onOpen: () => vo
                   <BookOpen className="size-5" aria-hidden />
                   Open portfolio
                 </StitchButton>
+                {/* Keyboard/screen-reader route to the wall sticky note */}
+                <button
+                  type="button"
+                  onClick={onContact}
+                  className="pointer-events-auto sr-only rounded-md bg-kraft px-3 py-1.5 font-hand text-ink focus:not-sr-only focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-haldi"
+                >
+                  Contact details
+                </button>
               </>
             )}
           </div>

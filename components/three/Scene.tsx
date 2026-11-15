@@ -9,7 +9,7 @@ import { ATMOSPHERES, useTimeOfDay } from "./atmosphere";
 import { Book } from "./Book";
 import { CameraRig } from "./CameraRig";
 import { Desk } from "./Desk";
-import { Room } from "./Room";
+import { Room, WALL_Z } from "./Room";
 import { BrushJar } from "./props/BrushJar";
 import { DeskLamp } from "./props/DeskLamp";
 import { FabricSwatches } from "./props/FabricSwatches";
@@ -17,6 +17,7 @@ import { Palette } from "./props/Palette";
 import { PinCushion } from "./props/PinCushion";
 import { Scissors } from "./props/Scissors";
 import { Sketchbook } from "./props/Sketchbook";
+import { StickyNote } from "./props/StickyNote";
 import { TapeMeasure } from "./props/TapeMeasure";
 import { ThreadSpools } from "./props/ThreadSpools";
 
@@ -27,6 +28,8 @@ export type SceneProps = {
   onOpen: () => void;
   onOpened: () => void;
   onClosed: () => void;
+  /** Sticky note clicked — screen position of the click. */
+  onContact: (x: number, y: number) => void;
 };
 
 /**
@@ -43,7 +46,15 @@ function Ready({ onReady }: { onReady: () => void }) {
   return null;
 }
 
-export default function Scene({ phase, reducedMotion, onReady, onOpen, onOpened, onClosed }: SceneProps) {
+export default function Scene({
+  phase,
+  reducedMotion,
+  onReady,
+  onOpen,
+  onOpened,
+  onClosed,
+  onContact,
+}: SceneProps) {
   const a = ATMOSPHERES[useTimeOfDay()];
 
   return (
@@ -87,6 +98,14 @@ export default function Scene({ phase, reducedMotion, onReady, onOpen, onOpened,
 
       <Suspense fallback={null}>
         <Room atmosphere={a} />
+        {/* Contact sticky note pinned on the wall, right of the window */}
+        <StickyNote
+          position={[4.6, 1.05, WALL_Z]}
+          compactPosition={[1.4, 1.35, WALL_Z]}
+          scale={1.4}
+          interactive={phase === "intro"}
+          onOpen={onContact}
+        />
         <Desk />
 
         {/* Props are kept clear of the open book's footprint (x -4.5…1.5, z ±0.9). */}

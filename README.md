@@ -55,6 +55,7 @@ scripts/export-slides.swift
 ## Notes
 
 - **Time of day:** the room follows the visitor's clock. Morning (5–10) shows a sunrise, day (10–16) a bright sky, evening (16–19) a sunset with the lamp on, and night a moon and stars with the lamp on. Sun or moon light comes through the window onto the desk. To preview a look, add `?time=morning`, `?time=day`, `?time=evening` or `?time=night` to the URL. To tweak a look, edit `components/three/atmosphere.ts`.
+- **Contact sticky note:** the yellow note on the wall opens a larger card with tap-to-call, tap-to-email and copy buttons. The details live in `data/contact.ts`, the wall note is in `components/three/props/StickyNote.tsx`, and the card is in `components/ui/ContactCard.tsx`.
 - **Contents page:** on page 5, the labels held by Durga are clickable. The viewer riffles through a few pages and lands on that section. Positions and links are in `hotspots` in `data/slides.ts`. Labels without pages yet show "coming soon"; give them a `section` once their pages exist.
 
 - **Viewer controls:** ← / → (or swipe) to turn pages, Home / End to jump to the first or last page, and Esc to close.
