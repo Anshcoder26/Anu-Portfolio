@@ -13,6 +13,8 @@ export type DeskApi = {
   /** The one object whose label is showing. */
   active: string | null;
   setActive: (id: string | null) => void;
+  /** Walk to the Onayakhi store (the wall's arrow sign). Absent inside the store. */
+  goToStore?: () => void;
 };
 
 export const DeskContext = createContext<DeskApi | null>(null);

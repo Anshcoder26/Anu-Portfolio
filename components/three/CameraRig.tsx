@@ -47,6 +47,8 @@ const tmpOffset = new THREE.Vector3();
 export function CameraRig({ phase, reducedMotion }: { phase: Phase; reducedMotion: boolean }) {
   const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera;
   const lookAt = useRef(new THREE.Vector3(...SHOTS.wide.target));
+  // Back from the store (remounted mid-session): cut straight to the shot.
+  const snap = useRef(phase !== "loading");
 
   useFrame((state, delta) => {
     const shot = shotFor(phase);
@@ -69,7 +71,8 @@ export function CameraRig({ phase, reducedMotion }: { phase: Phase; reducedMotio
       tmpPos.y += state.pointer.y * 0.2;
     }
 
-    const smooth = reducedMotion ? 0.0001 : shot.smooth;
+    const smooth = reducedMotion || snap.current ? 0.0001 : shot.smooth;
+    snap.current = false;
     easing.damp3(camera.position, tmpPos, smooth, delta);
     easing.damp3(lookAt.current, tmpTarget, smooth, delta);
     camera.lookAt(lookAt.current);

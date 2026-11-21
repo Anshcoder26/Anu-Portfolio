@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { Interactive } from "../desk/Interactive";
-import { useResponsivePosition, type Vec3 } from "../desk/useResponsive";
+import { useNarrow, useResponsivePosition, type Vec3 } from "../desk/useResponsive";
 import { useTrigger, wobble } from "../desk/useTrigger";
 import { paintPennant, sharedTexture } from "../textures";
 import { Pin } from "./Pin";
@@ -12,11 +12,17 @@ import { Pin } from "./Pin";
 const W = 1.35;
 const H = 0.55;
 
-type Props = Omit<React.JSX.IntrinsicElements["group"], "position"> & { position: Vec3; compactPosition?: Vec3 };
+type Props = Omit<React.JSX.IntrinsicElements["group"], "position" | "rotation-y"> & {
+  position: Vec3;
+  compactPosition?: Vec3;
+  /** Turn (e.g. to hang on a side wall) — dropped in the compact spot, which is on the back wall. */
+  "rotation-y"?: number;
+};
 
 /** Felt "NIFT BANGALORE" pennant pinned at its hoist. Click: it swings. */
-export function Pennant({ position, compactPosition, ...props }: Props) {
+export function Pennant({ position, compactPosition, "rotation-y": turn = 0, ...props }: Props) {
   const pos = useResponsivePosition(position, compactPosition);
+  const compact = useNarrow() && !!compactPosition;
   const map = sharedTexture("pennant", 512, 210, paintPennant, { fonts: true });
   const trigger = useTrigger();
   const flag = useRef<THREE.Group>(null);
@@ -38,6 +44,7 @@ export function Pennant({ position, compactPosition, ...props }: Props) {
       labelOffset={[W / 2, 0.55, 0.1]}
       onActivate={trigger.fire}
       position={pos}
+      rotation-y={compact ? 0 : turn}
       {...props}
     >
       <group ref={flag}>

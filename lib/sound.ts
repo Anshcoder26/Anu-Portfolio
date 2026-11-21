@@ -4,7 +4,7 @@
  * audio after a user gesture, which the toggle click provides.
  */
 
-export type Cue = "snip" | "pop" | "paper" | "thud" | "knock" | "click" | "chime" | "swoosh" | "slurp";
+export type Cue = "snip" | "pop" | "paper" | "thud" | "knock" | "click" | "chime" | "swoosh" | "slurp" | "walk" | "door";
 
 const STORAGE_KEY = "anu-sound";
 
@@ -126,7 +126,58 @@ const CUES: Record<Cue, (ac: AudioContext) => void> = {
   },
   swoosh: (ac) => noise(ac, { dur: 0.45, type: "bandpass", freq: 400, sweepTo: 2400, q: 1.2, gain: 0.18 }),
   slurp: (ac) => slurp(ac),
+  walk: (ac) => walk(ac),
+  door: (ac) => {
+    // Wooden door: latch click, a soft creak, then a little shop bell.
+    noise(ac, { dur: 0.04, type: "bandpass", freq: 1800, q: 4, gain: 0.35 });
+    tone(ac, { at: 0.06, dur: 0.5, freq: 180, slideTo: 260, type: "sawtooth", gain: 0.035 });
+    [1568, 2093].forEach((f, i) => tone(ac, { at: 0.3 + i * 0.12, dur: 0.8, freq: f, gain: 0.08 }));
+  },
 };
+
+/**
+ * Footsteps for the ~2 s walk to the store: heel thump + a gritty scuff,
+ * alternating left/right, slightly uneven like a real stroll.
+ */
+function walk(ac: AudioContext) {
+  const STEPS = 7;
+  for (let i = 0; i < STEPS; i++) {
+    const at = 0.12 + i * 0.27 + (Math.random() - 0.5) * 0.03;
+    const t = ac.currentTime + at;
+    // Fade in from afar, out as we arrive.
+    const level = Math.sin(((i + 0.5) / STEPS) * Math.PI) * 0.8 + 0.2;
+    const pan = ac.createStereoPanner();
+    pan.pan.value = i % 2 ? 0.25 : -0.25;
+    pan.connect(ac.destination);
+
+    // Heel: a short low thump.
+    const o = ac.createOscillator();
+    o.frequency.setValueAtTime(95, t);
+    o.frequency.exponentialRampToValueAtTime(50, t + 0.09);
+    const og = ac.createGain();
+    og.gain.setValueAtTime(0.0001, t);
+    og.gain.exponentialRampToValueAtTime(0.5 * level, t + 0.006);
+    og.gain.exponentialRampToValueAtTime(0.0001, t + 0.1);
+    o.connect(og).connect(pan);
+    o.start(t);
+    o.stop(t + 0.12);
+
+    // Sole scuffing grit on the pavement.
+    const src = ac.createBufferSource();
+    src.buffer = noiseBuffer(ac, 0.12);
+    const f = ac.createBiquadFilter();
+    f.type = "bandpass";
+    f.frequency.value = 900 + Math.random() * 500;
+    f.Q.value = 0.9;
+    const ng = ac.createGain();
+    ng.gain.setValueAtTime(0.0001, t + 0.01);
+    ng.gain.exponentialRampToValueAtTime(0.22 * level, t + 0.025);
+    ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+    src.connect(f).connect(ng).connect(pan);
+    src.start(t + 0.01);
+    src.stop(t + 0.14);
+  }
+}
 
 /**
  * A slurp is air sucked across a liquid surface: turbulent noise that flutters

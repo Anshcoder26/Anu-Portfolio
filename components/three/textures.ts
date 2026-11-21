@@ -6,7 +6,7 @@ import { profile } from "@/data/profile";
 import { COLORS } from "./materials";
 
 /** CSS font-family string for a next/font variable (falls back if missing). */
-export function fontFamily(variable: "--font-kalam" | "--font-yatra", fallback = "cursive") {
+export function fontFamily(variable: "--font-kalam" | "--font-yatra" | "--font-cormorant", fallback = "cursive") {
   if (typeof document === "undefined") return fallback;
   return getComputedStyle(document.documentElement).getPropertyValue(variable).trim() || fallback;
 }
@@ -27,7 +27,15 @@ export function canvasTexture(w: number, h: number, paint: Painter, opts: { font
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.anisotropy = 8;
   if (opts.fonts && document.fonts) {
-    document.fonts.ready
+    // A web font only downloads once something asks for it — ask for each one the
+    // painters use (a canvas alone doesn't), then repaint with the real letters.
+    const faces = [
+      `400 32px ${fontFamily("--font-yatra", "serif")}`,
+      `700 32px ${fontFamily("--font-kalam")}`,
+      `500 32px ${fontFamily("--font-cormorant", "serif")}`,
+    ];
+    Promise.all(faces.map((f) => document.fonts.load(f)))
+      .then(() => document.fonts.ready)
       .then(() => {
         ctx.clearRect(0, 0, w, h);
         paint(ctx, w, h);
@@ -476,4 +484,79 @@ export const paintNote: Painter = (ctx, w) => {
   ctx.fillStyle = COLORS.sindoor;
   ctx.font = `700 34px ${family}`;
   ctx.fillText("tap me ✦", size / 2, 460);
+};
+
+// ── Onayakhi store ──────────────────────────────────────────────────────────
+
+/**
+ * Hand-painted wooden arrow pointing right: "Way to store" + footprints.
+ * Transparent outside the arrow — use with alphaTest.
+ */
+export const paintStoreSign: Painter = (ctx, w, h) => {
+  ctx.clearRect(0, 0, w, h);
+  const tip = w * 0.84;
+  const inset = h * 0.14;
+  const arrow = () => {
+    ctx.beginPath();
+    ctx.moveTo(6, inset);
+    ctx.lineTo(tip, inset);
+    ctx.lineTo(tip, 4);
+    ctx.lineTo(w - 4, h / 2);
+    ctx.lineTo(tip, h - 4);
+    ctx.lineTo(tip, h - inset);
+    ctx.lineTo(6, h - inset);
+    ctx.closePath();
+  };
+  // Plank with wood grain
+  arrow();
+  ctx.fillStyle = "#7A4B2E";
+  ctx.fill();
+  ctx.save();
+  arrow();
+  ctx.clip();
+  const r = rng(21);
+  for (let i = 0; i < 26; i++) {
+    const y = r() * h;
+    ctx.strokeStyle = `rgba(40,22,10,${0.15 + r() * 0.2})`;
+    ctx.lineWidth = 1 + r() * 2;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.bezierCurveTo(w * 0.3, y + (r() - 0.5) * 14, w * 0.6, y + (r() - 0.5) * 14, w, y + (r() - 0.5) * 8);
+    ctx.stroke();
+  }
+  ctx.restore();
+  // Painted haldi border
+  arrow();
+  ctx.strokeStyle = COLORS.haldi;
+  ctx.lineWidth = 7;
+  ctx.stroke();
+  ctx.strokeStyle = "rgba(27,20,16,0.55)";
+  ctx.setLineDash([9, 7]);
+  ctx.lineWidth = 2;
+  ctx.save();
+  ctx.translate(w * 0.02, h * 0.05);
+  ctx.scale(0.96, 0.9);
+  arrow();
+  ctx.stroke();
+  ctx.restore();
+  ctx.setLineDash([]);
+  // Lettering
+  ctx.fillStyle = COLORS.cream;
+  ctx.strokeStyle = "rgba(27,20,16,0.85)";
+  ctx.lineWidth = 7;
+  ctx.lineJoin = "round";
+  ctx.textBaseline = "middle";
+  ctx.textAlign = "left";
+  ctx.font = `400 ${Math.round(h * 0.4)}px ${fontFamily("--font-yatra", "serif")}`;
+  ctx.strokeText("Way to store", w * 0.05, h * 0.5);
+  ctx.fillText("Way to store", w * 0.05, h * 0.5);
+  // Little footprints walking towards the tip
+  ctx.fillStyle = COLORS.haldi;
+  for (let i = 0; i < 3; i++) {
+    const x = w * 0.74 + i * w * 0.04;
+    const y = h / 2 + (i % 2 ? -1 : 1) * h * 0.09;
+    ctx.beginPath();
+    ctx.ellipse(x, y, h * 0.035, h * 0.022, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
 };

@@ -1,10 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Kalam, Yatra_One } from "next/font/google";
+import { Cormorant_Garamond, Inter, Kalam, Yatra_One } from "next/font/google";
 import "./globals.css";
 
 const yatra = Yatra_One({ variable: "--font-yatra", weight: "400", subsets: ["latin"] });
 const kalam = Kalam({ variable: "--font-kalam", weight: ["400", "700"], subsets: ["latin"] });
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
+// Onayakhi's wordmark: a high-contrast classical serif, set in widely spaced capitals.
+const cormorant = Cormorant_Garamond({ variable: "--font-cormorant", weight: ["500", "600"], subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Anu's Portfolio — Anusmita Nath",
@@ -23,7 +25,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${yatra.variable} ${kalam.variable} ${inter.variable} antialiased`}>
+    <html lang="en" className={`${yatra.variable} ${kalam.variable} ${inter.variable} ${cormorant.variable} antialiased`}>
       <body className="font-sans">{children}</body>
     </html>
   );

@@ -16,7 +16,7 @@ const FLOOR_Y = -3;
 const ROOM = { x0: -7.1, x1: 7.1, top: 11, front: 12 };
 
 /** Paints the view outside: sky gradient, sun or moon + stars, rolling hills. */
-function drawSky(a: Atmosphere) {
+export function drawSky(a: Atmosphere) {
   const w = 512;
   const h = 384;
   const canvas = document.createElement("canvas");

@@ -27,6 +27,8 @@ export function useTrigger() {
   };
 }
 
+export type Trigger = ReturnType<typeof useTrigger>;
+
 /** Smoothstep 0…1. */
 export const smooth = (x: number) => {
   const t = Math.max(0, Math.min(1, x));

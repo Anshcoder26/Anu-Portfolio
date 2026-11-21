@@ -63,8 +63,24 @@ All transitions use functional `setPhase(p => p === X ? Y : p)`, so stray or dup
 - R3F only raycasts objects that have handlers, so non-interactive meshes such as walls don't block clicks.
 - Thin objects (scissors, tape) need an invisible `opacity={0}` hit box. The window uses an opening-sized pane.
 
+**Onayakhi store (`components/three/store/`):**
+- The canvas has two places, `Place = "studio" | "store"` in `lib/phase.ts`. `Scene.tsx` renders `Studio.tsx`, which holds the whole study and its lights, or the lazy-loaded `store/Store.tsx`. Each place owns its own lights, fog and camera rig.
+- `app/page.tsx` runs the trip. The wall's `StoreSign` calls `desk.goToStore`, which triggers the `walk` sound and the black `TravelCurtain`. Behind the curtain, `place` swaps after 400 ms. The curtain lifts only once at least 2 s have passed **and** the new place's `<Ready>` has fired `onPlaceReady`. A `travelling` ref ignores repeat clicks.
+- `CameraRig` snaps (rather than flies) when it remounts outside `loading`.
+- `StoreView` (`street`/`inside`) and the stop index live in `page.tsx`, because `StoreOverlay` drives them.
+- **Layout:**
+  - The street and the interior are one continuous set. "Step inside" just changes the camera shot, so it dollies through the door.
+  - The facade is at `FACADE_Z` (−1), and the shop box is `SHOP` in `Interior.tsx`. The facade's half-width matches the interior, so the neighbouring buildings don't poke into the shop.
+  - Stop camera shots are `STOPS` in `Store.tsx`, in the same order as `storeStops` in `data/store.ts`.
+- **Products:**
+  - Each product is a `StoreItem`, which wraps `Interactive`. Clicking it reports its bounding-box centre to `FocusContext`, and the camera leans towards that point.
+  - The store provides its own `DeskContext`, with `enabled` only while inside.
+  - Product art is a painted canvas, or `/store/<id>.webp` when `photo: true` is set in `data/store.ts`. Keep the flag accurate, because a missing file makes `useTexture` throw.
+- `MugBody` and `BagBody` are the reusable meshes behind the desk mug and bag. They take a `Trigger`.
+- `Interactive` has a `direct` mode, used by the sign: a click runs `onActivate` only, and the hover caption doesn't intercept clicks.
+
 **Wall layout:**
-- Wall items sit right of the window. On narrow screens, some items take a `compactPosition` through `useResponsivePosition`. Phones see much more wall height, so compact spots sit higher.
+- Wall items sit right of the window. The "Way to store" sign has the top-right spot beside the title. The NIFT pennant hangs on the right side wall and drops that rotation in its compact spot. On narrow screens, some items take a `compactPosition` through `useResponsivePosition`. Phones see much more wall height, so compact spots sit higher.
 - Thumbnails for the mood-board polaroids come from `public/slides/thumbs/`, which `npm run export-slides` generates.
 
 **Content:** `data/slides.ts` is the single source of truth for pages. Each entry has `src`, a `section` that feeds the section `<select>` (`sections` is derived from it) and `title`/`alt` text written from the PDF's own text. Adding a page means exporting the image and adding an entry here.

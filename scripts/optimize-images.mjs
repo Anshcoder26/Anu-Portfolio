@@ -47,5 +47,22 @@ for (const [rel, width, quality, removeSource] of jobs) {
   if (removeSource) unlinkSync(src);
 }
 
+// Onayakhi store product photos (public/store/<id>.jpg → .webp; see data/store.ts).
+const store = pub("store");
+if (existsSync(store)) {
+  for (const f of readdirSync(store).filter((f) => /\.jpe?g$/i.test(f))) {
+    const [rel, width, quality] = [`store/${f}`, 1024, 80];
+    const src = pub(rel);
+    const out = src.replace(/\.jpe?g$/i, ".webp");
+    await sharp(src).resize({ width, withoutEnlargement: true }).webp({ quality, effort: 6 }).toFile(out);
+    const a = statSync(src).size;
+    const b = statSync(out).size;
+    before += a;
+    after += b;
+    console.log(`✓ ${rel} ${kb(a)} → ${path.basename(out)} ${kb(b)}`);
+    unlinkSync(src);
+  }
+}
+
 if (before) console.log(`\nTotal ${kb(before)} → ${kb(after)} (−${Math.round((1 - after / before) * 100)}%)`);
 else console.log("Nothing to optimise (already WebP).");

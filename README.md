@@ -78,9 +78,13 @@ scripts/export-slides.swift
   | Mood-board polaroids | — | Their page |
   | Student ID card | Swings | — |
   | Tapestry loom | Weaves a row | Weaving |
-  | NIFT Bangalore pennant | Swings | Cover |
+  | NIFT Bangalore pennant (right side wall) | Swings | Cover |
+  | "Way to store" arrow sign | Walks you to the Onayakhi store | The store |
 
   The campus and ID-card text live in `data/profile.ts`, and the Onayakhi brand link lives in `data/onayakhi.ts`. Its artwork was cropped from Anu's product photos into `public/textures/onayakhi-*.jpg`. Sound is off by default; the speaker button turns it on. All sounds are synthesised in `lib/sound.ts`, so there are no audio files.
+- **Onayakhi store:** the "Way to store" sign on the wall plays footsteps over a black screen for about 2 seconds, then shows Anu's shop on a street, with the "Onayakhi.com" board. "Step inside" (or a click on the door) walks in. Inside, ← / → move between six displays: the brand wall, the mug shelf, the wall tapestry, the "Echoes of Memory" table (tote, mug, journal, laptop sleeve, phone cases, plus the macramé keychains and flower necklace), the lounge with the woven deck chair and the cushions, and the counter with packaging. Clicking a product brings the camera closer and shows a label linking to @0nayakhi. Esc steps back out, first to the street and then to the studio.
+  - **Products:** listed in `data/store.ts`, with captions from the Instagram posts. Product artwork comes from Anu's photos, cropped and straightened into `public/store/*.webp`. To add one, save the crop as `public/store/<name>.jpg` and run `npm run optimize-images`. Products without a photo fall back to painted artwork in `components/three/store/storeTextures.ts`.
+  - **Loading:** the store code is downloaded only when someone walks there.
 - **Contact sticky note:** the yellow note on the wall opens a larger card with tap-to-call, tap-to-email and copy buttons. The details live in `data/contact.ts`, the wall note is in `components/three/props/StickyNote.tsx`, and the card is in `components/ui/ContactCard.tsx`.
 - **Contents page:** on page 5, the labels held by Durga are clickable. The viewer riffles through a few pages and lands on that section. Positions and links are in `hotspots` in `data/slides.ts`. Labels without pages yet show "coming soon"; give them a `section` once their pages exist.
 

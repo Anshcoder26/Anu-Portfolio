@@ -8,14 +8,20 @@ import { StitchButton } from "./StitchButton";
 /** Title + hint shown over the desk. Fades out once the book starts opening. */
 export function IntroOverlay({
   phase,
+  hidden = false,
   onOpen,
   onContact,
+  onStore,
 }: {
   phase: Phase;
+  /** We're away at the store. */
+  hidden?: boolean;
   onOpen: () => void;
   onContact: () => void;
+  /** Keyboard/screen-reader route to the wall's "Way to store" sign. */
+  onStore: () => void;
 }) {
-  const visible = phase === "loading" || phase === "intro" || phase === "closing";
+  const visible = !hidden && (phase === "loading" || phase === "intro" || phase === "closing");
 
   return (
     <AnimatePresence>
@@ -75,6 +81,13 @@ export function IntroOverlay({
                   className="pointer-events-auto sr-only rounded-md bg-kraft px-3 py-1.5 font-hand text-ink focus:not-sr-only focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-haldi"
                 >
                   Contact details
+                </button>
+                <button
+                  type="button"
+                  onClick={onStore}
+                  className="pointer-events-auto sr-only rounded-md bg-kraft px-3 py-1.5 font-hand text-ink focus:not-sr-only focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-haldi"
+                >
+                  Visit Onayakhi store
                 </button>
               </>
             )}

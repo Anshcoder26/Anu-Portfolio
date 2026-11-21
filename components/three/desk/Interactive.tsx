@@ -35,6 +35,8 @@ type Props = Omit<React.JSX.IntrinsicElements["group"], "children" | "name"> & {
   labelOffset?: [number, number, number];
   /** Lift on hover (world units). */
   lift?: number;
+  /** Click just runs `onActivate` (no pinned label) — the label still shows on hover. */
+  direct?: boolean;
   children: ReactNode;
 };
 
@@ -55,6 +57,7 @@ export function Interactive({
   onActivate,
   labelOffset = [0, 0.9, 0],
   lift = 0.06,
+  direct = false,
   children,
   ...group
 }: Props) {
@@ -88,7 +91,8 @@ export function Interactive({
     if (!desk.enabled) return;
     onActivate?.();
     if (sound) play(sound);
-    setActive(id);
+    if (direct) setHovered(false);
+    else setActive(id);
   };
 
   const card = (
@@ -143,7 +147,8 @@ export function Interactive({
                 </div>,
                 document.body,
               )
-            : <div className="pointer-events-auto w-max max-w-56 -translate-y-1/2">{card}</div>}
+            : // Direct objects: the hover label is just a caption — clicks go through to the object.
+              <div className={`${direct ? "pointer-events-none" : "pointer-events-auto"} w-max max-w-56 -translate-y-1/2`}>{card}</div>}
         </Html>
       )}
     </group>

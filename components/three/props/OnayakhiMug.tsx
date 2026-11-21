@@ -6,7 +6,7 @@ import { Billboard, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import { onayakhi, openOnayakhiInstagram } from "@/data/onayakhi";
 import { Interactive } from "../desk/Interactive";
-import { smooth, useTrigger } from "../desk/useTrigger";
+import { smooth, useTrigger, type Trigger } from "../desk/useTrigger";
 import { sharedTexture } from "../textures";
 
 const R = 0.2;
@@ -56,15 +56,13 @@ function Steam() {
 }
 
 /**
- * Onayakhi mug — Anu's first printed product — full of coffee, steaming,
- * on the alpona coaster. Click: slurp! (coffee level drops) and the brand's
- * Instagram opens in a new tab.
+ * The mug itself — black ceramic, printed band, coffee, steam, logo tag.
+ * `trigger` drives the sip (coffee level dips). Reused by the Onayakhi store.
  */
-export function OnayakhiMug(props: React.JSX.IntrinsicElements["group"]) {
+export function MugBody({ trigger, steam = true, coffee: full = true }: { trigger: Trigger; steam?: boolean; coffee?: boolean }) {
   const [art, tag] = useTexture(["/textures/onayakhi-mug-art.webp", "/textures/onayakhi-tag.webp"], (ts) =>
     ts.forEach((t) => (t.colorSpace = THREE.SRGBColorSpace)),
   );
-  const trigger = useTrigger();
   const coffee = useRef<THREE.Mesh>(null);
 
   useFrame((state) => {
@@ -76,21 +74,7 @@ export function OnayakhiMug(props: React.JSX.IntrinsicElements["group"]) {
   });
 
   return (
-    <Interactive
-      name="onayakhi-mug"
-      label="Onayakhi mug ☕"
-      hint="Anu's own brand — her first printed product"
-      href={onayakhi.instagram}
-      hrefLabel="@0nayakhi on Instagram ↗"
-      sound="slurp"
-      lift={0.05}
-      labelOffset={[0, 1.0, 0]}
-      onActivate={() => {
-        trigger.fire();
-        openOnayakhiInstagram();
-      }}
-      {...props}
-    >
+    <>
       {/* Black ceramic body (open top) + base */}
       <mesh position-y={H / 2} castShadow receiveShadow>
         <cylinderGeometry args={[R, R * 0.96, H, 40, 1, true]} />
@@ -111,11 +95,11 @@ export function OnayakhiMug(props: React.JSX.IntrinsicElements["group"]) {
         <meshStandardMaterial map={art} roughness={0.3} />
       </mesh>
       {/* Coffee */}
-      <mesh ref={coffee} position-y={COFFEE_TOP} rotation-x={-Math.PI / 2}>
+      <mesh ref={coffee} visible={full} position-y={COFFEE_TOP} rotation-x={-Math.PI / 2}>
         <circleGeometry args={[R - 0.012, 32]} />
         <meshStandardMaterial color="#3B2414" roughness={0.15} metalness={0.1} />
       </mesh>
-      <Steam />
+      {steam && full && <Steam />}
 
       {/* Handle (left, as in the product photo) */}
       <mesh position={[-R - 0.06, H / 2 + 0.02, 0]} rotation-z={Math.PI / 2}>
@@ -133,6 +117,35 @@ export function OnayakhiMug(props: React.JSX.IntrinsicElements["group"]) {
           <meshStandardMaterial map={tag} roughness={0.8} />
         </mesh>
       </group>
+    </>
+  );
+}
+
+/**
+ * Onayakhi mug — Anu's first printed product — full of coffee, steaming,
+ * on the alpona coaster. Click: slurp! (coffee level drops) and the brand's
+ * Instagram opens in a new tab.
+ */
+export function OnayakhiMug(props: React.JSX.IntrinsicElements["group"]) {
+  const trigger = useTrigger();
+
+  return (
+    <Interactive
+      name="onayakhi-mug"
+      label="Onayakhi mug ☕"
+      hint="Anu's own brand — her first printed product"
+      href={onayakhi.instagram}
+      hrefLabel="@0nayakhi on Instagram ↗"
+      sound="slurp"
+      lift={0.05}
+      labelOffset={[0, 1.0, 0]}
+      onActivate={() => {
+        trigger.fire();
+        openOnayakhiInstagram();
+      }}
+      {...props}
+    >
+      <MugBody trigger={trigger} />
     </Interactive>
   );
 }
